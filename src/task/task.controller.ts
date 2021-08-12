@@ -1,4 +1,5 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { Task } from './task.entity';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -16,6 +17,11 @@ export class TaskController {
       })
     }
     return task;
+  }
+
+  @Post()
+  public async postTask(@Body() task: Task){
+    return this.taskService.postTask(task);
   }
 
 }
