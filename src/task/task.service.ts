@@ -22,4 +22,8 @@ export class TaskService {
         this.tasks.splice(this.tasks.indexOf(task), 1);
         return this.tasks;
     }
+
+    public async getAll(){
+        return this.tasks;
+    }
 }

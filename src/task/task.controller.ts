@@ -29,4 +29,9 @@ export class TaskController {
     return this.taskService.deleteTask(id);
   }
 
+  @Get()
+  public async getAllTask() {
+    return this.taskService.getAll();
+  }
+
 }
