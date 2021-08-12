@@ -7,8 +7,8 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get(':id')
-  public async getTask(@Param('id', new ParseIntPipe()) id: number){
-    const task = await this.taskService.getTask(id); 
+  public async getTask(@Param('id', ParseIntPipe) id: number){
+    const task = await this.taskService.findOne(id); 
 
     if(!task){
       throw new NotFoundException({
@@ -20,18 +20,18 @@ export class TaskController {
   }
 
   @Post()
-  public async postTask(@Body(new ValidationPipe()) task: CreateTaskDto){
-    return this.taskService.createTask(task);
+  public async postTask(@Body(ValidationPipe) task: CreateTaskDto){
+    return this.taskService.create(task);
   }
 
   @Delete(':id')
-  public async deleteTask(@Param('id', new ParseIntPipe()) id: number) {
-    return this.taskService.deleteTask(id);
+  public async deleteTask(@Param('id', ParseIntPipe) id: number) {
+    return this.taskService.delete(id);
   }
 
   @Get()
   public async getAllTask() {
-    return this.taskService.getAll();
+    return this.taskService.findAll();
   }
 
 }

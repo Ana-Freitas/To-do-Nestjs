@@ -1,9 +1,11 @@
-import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateTaskDto {
 
+    
     @IsNotEmpty()
-    readonly id: number;
+    @IsNumber()
+    readonly _id: number;
 
     @IsString()
     @IsNotEmpty()
@@ -12,10 +14,16 @@ export class CreateTaskDto {
     @IsString()
     readonly description: string;
 
+    @IsDate()
     readonly createDate: Date;
 
+    @IsDate()
     readonly finishDate: Date;
 
     @IsBoolean()
     readonly isDone: boolean;
+
+    @IsNumber()
+    @IsNotEmpty()
+    readonly user: number;
 } 
