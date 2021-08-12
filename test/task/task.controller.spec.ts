@@ -50,7 +50,7 @@ describe('TaskController', () => {
 
   describe('GET All task', () => {
     it('Should be check length tasks', async () => {
-      const allTasks = sinon.stub(service, "getAll");
+      const allTasks = sinon.spy(service, "getAll");
       const responseTasks = await controller.getAllTask();
 
       expect(responseTasks).to.be.lengthOf(5);

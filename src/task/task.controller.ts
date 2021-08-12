@@ -33,6 +33,8 @@ export class TaskController {
     if(!tasks || tasks?.length == 0){
       return { message: 'No tasks'}
     }
+
+    return tasks;
   }
 
 }
