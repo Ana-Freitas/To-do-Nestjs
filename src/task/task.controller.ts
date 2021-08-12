@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
-import { Task } from './task.entity';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -20,8 +20,8 @@ export class TaskController {
   }
 
   @Post()
-  public async postTask(@Body() task: Task){
-    return this.taskService.postTask(task);
+  public async postTask(@Body() task: CreateTaskDto){
+    return this.taskService.createTask(task);
   }
 
   @Delete(':id')

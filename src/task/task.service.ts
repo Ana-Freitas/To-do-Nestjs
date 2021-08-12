@@ -1,29 +1,33 @@
-import { Task } from "./task.entity";
+import { ConflictException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { CreateTaskDto } from "./dto/create-task.dto";
+import { TaskDocument } from "./dto/task.schema";
 
 export class TaskService {
-    private tasks: Task[] = new Array<Task>();
 
-    constructor(){
-        this.tasks.push(new Task(1, 'string', 'teste', false));
-        this.tasks.push(new Task(2, 'string', 'teste', false));
-        this.tasks.push(new Task(3, 'string', 'teste', false));
-    }
+    constructor(@InjectModel("TaskModel") private taskModel: Model<TaskDocument>){}
 
     public async getTask(id: number){
-        return this.tasks.find(x=> x.id == id);
+        return this.taskModel.findById(id);
     }
 
-    public async postTask(task: Task){
-        return this.tasks.push(task);
+    public async createTask(task: CreateTaskDto): Promise<TaskDocument>{
+        if(await this.getTask(task._id)){
+            throw new ConflictException({
+                statusCode: 409,
+                message: "The task already exist"
+            });
+        }
+        const taskCreated = new this.taskModel(task)
+        return taskCreated.save();;
     }
 
     public async deleteTask(id: number) {
-        let task = await this.getTask(id);
-        this.tasks.splice(this.tasks.indexOf(task), 1);
-        return this.tasks;
+        return this.taskModel.findOneAndDelete({ _id: id });
     }
 
     public async getAll(){
-        return this.tasks;
+        return this.taskModel.find().exec();
     }
 }
