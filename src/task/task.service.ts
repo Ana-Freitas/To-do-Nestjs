@@ -14,6 +14,12 @@ export class TaskService {
     }
 
     public async postTask(task: Task){
-        return this.tasks.push();
+        return this.tasks.push(task);
+    }
+
+    public async deleteTask(id: number) {
+        let task = await this.getTask(id);
+        this.tasks.splice(this.tasks.indexOf(task), 1);
+        return this.tasks;
     }
 }

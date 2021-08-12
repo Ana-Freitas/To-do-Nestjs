@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
 import { Task } from './task.entity';
 import { TaskService } from './task.service';
 
@@ -22,6 +22,11 @@ export class TaskController {
   @Post()
   public async postTask(@Body() task: Task){
     return this.taskService.postTask(task);
+  }
+
+  @Delete(':id')
+  public async deleteTask(@Param('id') id: number) {
+    return this.taskService.deleteTask(id);
   }
 
 }
