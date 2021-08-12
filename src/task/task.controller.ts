@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
-import { Task } from './task.entity';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Task } from './dto/task.entity';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -11,10 +11,7 @@ export class TaskController {
     const task = await this.taskService.getTask(id); 
 
     if(!task){
-      throw new NotFoundException({
-        status: 404, 
-        message: 'Task not found'
-      })
+      return { message: 'Task not found'}
     }
     return task;
   }
@@ -31,7 +28,11 @@ export class TaskController {
 
   @Get()
   public async getAllTask() {
-    return this.taskService.getAll();
+    const tasks = await this.taskService.getAll();
+
+    if(!tasks || tasks?.length == 0){
+      return { message: 'No tasks'}
+    }
   }
 
 }

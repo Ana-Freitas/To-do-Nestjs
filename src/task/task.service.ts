@@ -1,4 +1,4 @@
-import { Task } from "./task.entity";
+import { Task } from "./dto/task.entity";
 
 export class TaskService {
     private tasks: Task[] = new Array<Task>();
@@ -19,8 +19,10 @@ export class TaskService {
 
     public async deleteTask(id: number) {
         let task = await this.getTask(id);
-        this.tasks.splice(this.tasks.indexOf(task), 1);
-        return this.tasks;
+        if(task){
+            return this.tasks.splice(this.tasks.indexOf(task), 1)[0];
+        }
+        return null;
     }
 
     public async getAll(){
