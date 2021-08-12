@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, ValidationPipe } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 
@@ -7,7 +7,7 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get(':id')
-  public async getTask(@Param('id') id: number){
+  public async getTask(@Param('id', new ParseIntPipe()) id: number){
     const task = await this.taskService.getTask(id); 
 
     if(!task){
@@ -20,12 +20,12 @@ export class TaskController {
   }
 
   @Post()
-  public async postTask(@Body() task: CreateTaskDto){
+  public async postTask(@Body(new ValidationPipe()) task: CreateTaskDto){
     return this.taskService.createTask(task);
   }
 
   @Delete(':id')
-  public async deleteTask(@Param('id') id: number) {
+  public async deleteTask(@Param('id', new ParseIntPipe()) id: number) {
     return this.taskService.deleteTask(id);
   }
 
