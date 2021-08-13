@@ -28,26 +28,18 @@ export class UserService {
   }
 
   public async findOne(id: number) {
-    const user: any = await this.userModel.findById(id);
-    const { password, ...result } = user._doc;
-    return result;
+    return this.userModel.findById(id);
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
-    const user: any = await this.userModel.findOneAndUpdate({ _id: id }, updateUserDto);
-    const { password, ...result } = user._doc;
-    return result;
+    return this.userModel.findOneAndUpdate({ _id: id }, updateUserDto);
   }
 
   public async remove(id: number) {
-    const user: any = await this.userModel.findByIdAndDelete(id);
-    const { password, ...result } = user._doc;
-    return result;
+    return this.userModel.findByIdAndDelete(id);
   }
 
   public async findByUsername(username: string) {
-    const user: any = await this.userModel.findOne({ username: username });
-    const { password, ...result } = user._doc;
-    return result;
+    return this.userModel.findOne({ username: username });
   }
 }
