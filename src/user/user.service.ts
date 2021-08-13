@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './dto/user.schema';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
 
@@ -14,11 +14,13 @@ export class UserService {
     if(await this.findOne(createUserDto._id)){ 
       throw new ConflictException({
         statusCode: 409,
-        message: "The task already exist"
+        message: "The user already exist"
       });
     }
-
-    return new this.userModel(createUserDto).save()
+    
+    const userCreated =  new this.userModel(createUserDto)
+    userCreated.password = bcrypt.hashSync(createUserDto.password, 8);
+    return userCreated.save()
   }
 
   public async findAll() {
@@ -26,18 +28,26 @@ export class UserService {
   }
 
   public async findOne(id: number) {
-    return this.userModel.findById(id);
+    const user: any = await this.userModel.findById(id);
+    const { password, ...result } = user._doc;
+    return result;
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userModel.findOneAndUpdate({ _id: id }, updateUserDto);
+    const user: any = await this.userModel.findOneAndUpdate({ _id: id }, updateUserDto);
+    const { password, ...result } = user._doc;
+    return result;
   }
 
   public async remove(id: number) {
-    return this.userModel.findByIdAndDelete(id);
+    const user: any = await this.userModel.findByIdAndDelete(id);
+    const { password, ...result } = user._doc;
+    return result;
   }
 
-  public async findByUsername(username: string): Promise<UserDocument> {
-    return this.userModel.findOne({ username: username });
+  public async findByUsername(username: string) {
+    const user: any = await this.userModel.findOne({ username: username });
+    const { password, ...result } = user._doc;
+    return result;
   }
 }
