@@ -8,12 +8,12 @@ export class TaskService {
 
     constructor(@InjectModel("TaskModel") private taskModel: Model<TaskDocument>){}
 
-    public async getTask(id: number){
+    public async findOne(id: number) {
         return this.taskModel.findById(id);
     }
 
-    public async createTask(task: CreateTaskDto): Promise<TaskDocument>{
-        if(await this.getTask(task._id)){
+    public async create(task: CreateTaskDto): Promise<TaskDocument>{
+        if(await this.findOne(task._id)){
             throw new ConflictException({
                 statusCode: 409,
                 message: "The task already exist"
@@ -23,11 +23,11 @@ export class TaskService {
         return taskCreated.save();;
     }
 
-    public async deleteTask(id: number) {
+    public async delete(id: number) {
         return this.taskModel.findOneAndDelete({ _id: id });
     }
 
-    public async getAll(){
+    public async findAll() {
         return this.taskModel.find().exec();
     }
 }
