@@ -6,8 +6,7 @@ import { UserSchema } from './dto/user.schema';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports:  [MongooseModule.forFeature([{ name: 'UserModel', schema: UserSchema }]), 
-  forwardRef(() => AuthModule)],
+  imports:  [MongooseModule.forFeature([{ name: 'UserModel', schema: UserSchema }])],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService]

@@ -19,21 +19,25 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':username')
   async findByUsername(@Param('username') username: string) {
     return this.userService.findByUsername(username);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   async update(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.userService.remove(id);

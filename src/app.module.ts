@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { TokenModule } from './token/token.module';
 
 dotenv.config();
 @Module({
@@ -15,7 +16,8 @@ dotenv.config();
 			useFindAndModify: false
 		}),
     UserModule,
-    AuthModule,],
+    AuthModule,
+    TokenModule],
   controllers: [],
   providers: []
 })
