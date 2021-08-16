@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskDocument } from "./dto/task.schema";
+import { UpdateTaskDto } from "./dto/update-task.dto";
 
 export class TaskService {
 
@@ -43,5 +44,19 @@ export class TaskService {
 
     public async findByUser(user: number) {
         return this.taskModel.find({ user: user });
+    }
+
+    public async updateTask(id: number, task: UpdateTaskDto, user: number){
+        const taskRegistered = await this.findOne(id);
+
+        if(taskRegistered && taskRegistered.user == user){
+            return this.taskModel.updateOne({ _id: id }, task);
+        }
+
+        throw new BadRequestException({
+            statusCode: 400,
+            message: "Unable to update task. Check that the code exists and that it belongs to your user"
+        })
+
     }
 }

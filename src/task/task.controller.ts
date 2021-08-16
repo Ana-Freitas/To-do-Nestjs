@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, UseGuards, ValidationPipe, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Patch, Get, NotFoundException, Param, ParseIntPipe, Post, UseGuards, ValidationPipe, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
@@ -46,6 +46,14 @@ export class TaskController {
   @Get()
   public async getTaskByUser(@Request() req) {
     return this.taskService.findByUser(req.user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch(':id')
+  public async updateTask(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const body = req.body;
+    const user = req.user;
+    return this.taskService.updateTask(id, body, user.userId);
   }
 
 }
