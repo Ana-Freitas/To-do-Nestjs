@@ -24,7 +24,12 @@ export class TaskController {
   @UseGuards(AuthGuard('jwt'))
   @Get('all')
   public async getAllTask() {
-    return this.taskService.findAll();
+    const tasks = await this.taskService.findAll();
+    if(!tasks){
+      return { message: 'No tasks'}
+    }
+
+    return tasks;
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -37,7 +42,6 @@ export class TaskController {
     }
     return task;
   }
-
 
   @UseGuards(AuthGuard('jwt'))
   @Get()

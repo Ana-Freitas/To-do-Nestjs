@@ -50,7 +50,7 @@ export class TaskService {
         const taskRegistered = await this.findOne(id);
 
         if(taskRegistered && taskRegistered.user == user){
-            return this.taskModel.updateOne({ _id: id }, task);
+            return this.taskModel.findOneAndUpdate({ _id: id }, task);
         }
 
         throw new BadRequestException({

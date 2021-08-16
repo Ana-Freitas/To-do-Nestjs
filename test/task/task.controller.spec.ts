@@ -1,23 +1,29 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TaskController } from '../../src/task/task.controller';
-import { TaskService } from '../../src/task/task.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { TaskController } from "../../src/task/task.controller";
+import { TaskService } from "../../src/task/task.service";
 
 import sinon = require("sinon");
 import { expect } from "chai";
-import { Task } from '../../src/task/dto/task.entity';
+import { Task } from "../../src/task/dto/task.entity";
+import { CreateTaskDto } from "../../src/task/dto/create-task.dto";
 
-describe('TaskController', () => {
+
+describe("TaskController", () => {
   let controller: TaskController;
   let testingModule: TestingModule;
   let service: TaskService;
 
-  const mockAllTasks = [
-    new Task(1, 'string', 'string', false),
-    new Task(2, 'string', 'teste', false),
-    new Task(3, 'string', 'teste', false),
-    new Task(4, 'string', 'teste', false),
-    new Task(5, 'string', 'teste', false),
-  ];
+  const mockAllTasks = new Array();
+  for(let id = 0; id < 5; id++){
+    mockAllTasks.push({ _id: id+1, title: "string", description: "string", user: 1 });
+  }
+
+  const mockUpdate = { _id: 1, title: "atualizada", description: "string" };
+
+  const mockByUser = [
+    { _id: 1, title: "atualizada", description: "string" , user: 1},
+    { _id: 2, title: "atualizada", description: "string" , user: 1},
+  ]
 
   beforeEach(async () => {
     testingModule = await Test.createTestingModule({
@@ -26,10 +32,12 @@ describe('TaskController', () => {
                 {
                   provide: TaskService,
                   useValue: {
-                    getAll: () => mockAllTasks,
-                    getTask: () => null,
-                    deleteTask: () => null,
-                    postTask: () => null
+                    findAll: () => mockAllTasks,
+                    findOne: () => mockAllTasks[1],
+                    delete: () => mockAllTasks[0],
+                    create: () => mockAllTasks[2],
+                    updateTask: () => mockUpdate,
+                    findByUser: () => mockByUser
                   }
                 }
               ],
@@ -43,14 +51,14 @@ describe('TaskController', () => {
     testingModule.close();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).to.be.not.undefined;
     expect(service).to.be.not.undefined;
   });
 
-  describe('GET All task', () => {
-    it('Should be check length tasks', async () => {
-      const allTasks = sinon.spy(service, "getAll");
+  describe("GET All task", () => {
+    it("Should be check length tasks", async () => {
+      const allTasks = sinon.spy(service, "findAll");
       const responseTasks = await controller.getAllTask();
 
       expect(responseTasks).to.be.lengthOf(5);
@@ -59,8 +67,8 @@ describe('TaskController', () => {
       allTasks.restore();
     });
 
-    it('Should check type of tasks', async () => {
-      const allTasks = sinon.spy(service, "getAll");
+    it("Should check type of tasks", async () => {
+      const allTasks = sinon.spy(service, "findAll");
       const responseTasks = await controller.getAllTask();
 
       expect(typeof(responseTasks)).to.be.deep.equal(typeof(Array<Task>()));
@@ -70,63 +78,134 @@ describe('TaskController', () => {
     });
 
     it("Should check if haven't tasks", async () => {
-      const allTasks = sinon.stub(service, "getAll");
+      const allTasks = sinon.stub(service, "findAll");
       allTasks.resolves(null)
       const responseTasks = await controller.getAllTask();
 
-      expect(responseTasks).to.be.deep.equal({ message: 'No tasks'});
+      expect(responseTasks).to.be.deep.equal({ message: "No tasks"});
 
       sinon.assert.calledOnce(allTasks);
       allTasks.restore();
     });
   })
 
-  describe('GET a task', () => {
-    it('Should check if find task by id', async () => {
-      const responseTasks = await controller.getTask(99);
-      expect(responseTasks).to.be.deep.equal({ message: 'Task not found'});
-    });
+  describe("GET All user task's", () =>{
 
-    it('Should to return task', async () => {
-      const task = sinon.stub(service, "getTask");
-      task.resolves(new Task(3, 'string', 'string', false))
-      const responseTask = await controller.getTask(1);
+    const request = { 
+      user: { userId: 1, username: "Teste" }
+    };
 
-      expect(responseTask).with.property('id').not.be.equal(1);
+    it("Should return all user task's ", async () => {
 
-      sinon.assert.calledOnce(task);
-      task.restore();
-    });
-  });
+      const getByUser = sinon.spy(service, "findByUser");
+      const allTask = await controller.getTaskByUser(request);
 
-  describe('DELETE task', () => {
-    it('Should delete a task', async () => {
-      const deleteT = sinon.stub(service, "deleteTask");
-      deleteT.resolves(mockAllTasks[0]);
+      expect(allTask).to.be.not.undefined.not.null;
+      expect(allTask).to.be.lengthOf(mockByUser.length);
 
-      const deleteTask = await controller.deleteTask(1);
-      expect(deleteTask).with.property('_title').is.equal('string');
+      getByUser.calledOnceWith(request.user.userId);
+      getByUser.restore();
+
     })
 
-    it('Should return null because task not exists', async () => {
-      const deleteTask = await controller.deleteTask(99);
-      expect(deleteTask).to.be.null;
-    })
-  });
+    it("Shouldn't return undefined ", async () => {
+      const getByUser = sinon.stub(service, "findByUser");
+      getByUser.resolves(null);
 
-  describe('POST task', () => {
-    it('Should create a task', () => {
-        const postTask = sinon.stub(service, "postTask");
-        let taskCreate = new Task(1, 'string', 'string', false);
-        postTask.resolves(1);
+      const allTask = await controller.getTaskByUser(request);
 
-        const result = controller.postTask(taskCreate);
+      expect(allTask).to.be.null;
 
-        expect(result).to.be.not.undefined.not.null;
-        postTask.calledWith(taskCreate);
-        postTask.restore();
+      getByUser.calledOnceWith(request.user.userId);
+      getByUser.restore();
+
     })
   })
 
+  describe("GET a task", () => {
+    it("Should check if find task by id", async () => {
+      const findOne = sinon.stub(service, "findOne");
+      findOne.resolves(null);
 
+      const responseTasks = await controller.getTask(99);
+      expect(responseTasks).to.be.deep.equal({ message: "Task not found"});
+
+      sinon.assert.calledOnce(findOne);
+      findOne.restore();
+    });
+
+    it("Should to return task", async () => {
+      const responseTask = await controller.getTask(2);
+      expect(responseTask).with.property("_id").to.be.equal(2);
+    });
+
+  });
+
+  describe("DELETE task", () => {
+    const token = { user: { userId: 1, username: "Teste" }};
+    it("Should delete a task", async () => {
+      const deleteTask = await controller.deleteTask(1, token);
+      expect(deleteTask).with.property("title").is.equal("string");
+    })
+
+    it("Should return null because task not exists", async () => {
+      const deleteT = sinon.stub(service, "delete");
+      deleteT.resolves(null);
+      const deleteTask = await controller.deleteTask(99, token);
+      expect(deleteTask).to.be.null;
+
+      deleteT.calledOnceWith(1, token.user.userId);
+      deleteT.restore();
+    })
+  });
+
+  describe("POST task", () => {
+
+    const token = { user: { userId: 1, username: "Teste" }};
+
+    it("Should create a task", async () => {
+        let taskCreate: CreateTaskDto = {
+          _id: 3,
+          title: "string",
+          description: "string",
+          createDate: new Date(),
+          finishDate: new Date(),
+          isDone: false
+        }
+
+        const result = await controller.postTask(token, taskCreate);
+        expect(result).to.be.not.undefined.not.null;
+        expect(result).with.property("_id").to.be.equal(3);
+    })
+
+    it("Shouldn't create a task", async () => {
+      const create = sinon.stub(service, "create");
+      create.resolves(undefined);
+
+      const result = await controller.postTask(token, null);
+      expect(result).to.be.undefined;
+
+      create.calledOnceWith(null, token);
+      create.restore();
+
+    });
+  })
+
+  describe("PATCH task", () => {
+    it("Should return task updated", async () => {
+      const updateTask = sinon.spy(service, "updateTask");
+
+      const taskUpdate = { 
+        body: {description: "atualizada"},
+        user: { userId: 1, username: "Teste" }
+      };
+
+      const task = await controller.updateTask(1,taskUpdate);
+      expect(task).to.be.not.null.not.undefined;
+      expect(task).with.property('_id').to.be.equal(1);
+
+      updateTask.calledOnceWith(1, taskUpdate.body, taskUpdate.user.userId );
+      updateTask.restore();
+    });
+  })
 }); 
