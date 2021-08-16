@@ -7,6 +7,26 @@ import { TaskService } from './task.service';
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  public async postTask(@Request() user, @Body(ValidationPipe) task: CreateTaskDto){
+    return this.taskService.create(task, user.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  public async deleteTask(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const user = req.user;
+    return this.taskService.delete(id, user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all')
+  public async getAllTask() {
+    return this.taskService.findAll();
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   public async getTask(@Param('id', ParseIntPipe) id: number){
@@ -21,23 +41,6 @@ export class TaskController {
     return task;
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post()
-  public async postTask(@Request() user, @Body(ValidationPipe) task: CreateTaskDto){
-    return this.taskService.create(task, user.user);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Delete(':id')
-  public async deleteTask(@Param('id', ParseIntPipe) id: number) {
-    return this.taskService.delete(id);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Get('all')
-  public async getAllTask() {
-    return this.taskService.findAll();
-  }
 
   @UseGuards(AuthGuard('jwt'))
   @Get()

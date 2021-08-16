@@ -1,4 +1,4 @@
-import { ConflictException } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { CreateTaskDto } from "./dto/create-task.dto";
@@ -24,8 +24,17 @@ export class TaskService {
         return taskCreated.save();;
     }
 
-    public async delete(id: number) {
-        return this.taskModel.findOneAndDelete({ _id: id });
+    public async delete(id: number, user: number) {
+        const task = await this.findOne(id);
+        
+        if(task && task.user == user) {
+            return this.taskModel.findOneAndDelete({ _id: id });
+        }
+
+        throw new BadRequestException({
+            statusCode: 400,
+            message: "Unable to delete task. Check that the code exists and that it belongs to your user"
+        })
     }
 
     public async findAll() {
