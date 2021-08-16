@@ -5,15 +5,17 @@ export class Task{
     private _description: string;
     private _createDate: Date;
     private _finishDate: Date;
-    private _isDone: boolean; 
+    private _isDone: boolean;
+    private _user: number; 
 
-    constructor(id: number, title:string, description: string, isDone: boolean){
+    constructor(id: number, title:string, description: string, isDone: boolean, user: number){
         this._id = id;
         this._title = title;
         this._description = description;
         this._isDone = isDone
         this._finishDate = new Date();
         this._createDate = new Date();
+        this._user = user;
     }
 
     public set finishDate(value: Date){
@@ -26,5 +28,9 @@ export class Task{
 
     public get id(){
         return this._id;
+    }
+
+    public get user(){
+        return this._user;
     }
 } 

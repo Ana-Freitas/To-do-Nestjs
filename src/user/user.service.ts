@@ -1,14 +1,16 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './dto/user.schema';
 import * as bcrypt from 'bcrypt';
+import { TaskService } from '../task/task.service';
 @Injectable()
 export class UserService {
 
-  constructor(@InjectModel("UserModel") private userModel: Model<UserDocument>){}
+  constructor(@InjectModel("UserModel") private userModel: Model<UserDocument>,
+  private taskService: TaskService){}
   
   public async create(createUserDto: CreateUserDto) {
     if(await this.findOne(createUserDto._id)){ 
@@ -36,6 +38,12 @@ export class UserService {
   }
 
   public async remove(id: number) {
+    if(await this.taskService.findByUser(id)){
+      throw new BadRequestException ({
+          statusCode: 400,
+          message: "It was not possible to delete because the user has registered tasks"
+      });
+    }
     return this.userModel.findByIdAndDelete(id);
   }
 

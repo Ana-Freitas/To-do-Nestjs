@@ -7,6 +7,7 @@ import { TaskSchema } from './dto/task.schema';
 @Module({
   imports:  [MongooseModule.forFeature([{ name: 'TaskModel', schema: TaskSchema }])],
   controllers: [TaskController],
-  providers: [TaskService]
+  providers: [TaskService],
+  exports: [TaskService]
 })
 export class TaskModule {}
