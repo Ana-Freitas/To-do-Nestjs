@@ -1,14 +1,36 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { Task } from './dto/task.entity';
+import { Body, Controller, Delete, Patch, Get, NotFoundException, Param, ParseIntPipe, Post, UseGuards, ValidationPipe, Request } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  public async postTask(@Request() user, @Body(ValidationPipe) task: CreateTaskDto){
+    return this.taskService.create(task, user.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  public async deleteTask(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const user = req.user;
+    return this.taskService.delete(id, user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all')
+  public async getAllTask() {
+    return this.taskService.findAll();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  public async getTask(@Param('id') id: number){
-    const task = await this.taskService.getTask(id); 
+  public async getTask(@Param('id', ParseIntPipe) id: number){
+    const task = await this.taskService.findOne(id); 
 
     if(!task){
       return { message: 'Task not found'}
@@ -16,25 +38,19 @@ export class TaskController {
     return task;
   }
 
-  @Post()
-  public async postTask(@Body() task: Task){
-    return this.taskService.postTask(task);
-  }
 
-  @Delete(':id')
-  public async deleteTask(@Param('id') id: number) {
-    return this.taskService.deleteTask(id);
-  }
-
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  public async getAllTask() {
-    const tasks = await this.taskService.getAll();
+  public async getTaskByUser(@Request() req) {
+    return this.taskService.findByUser(req.user.userId);
+  }
 
-    if(!tasks || tasks?.length == 0){
-      return { message: 'No tasks'}
-    }
-
-    return tasks;
+  @UseGuards(AuthGuard('jwt'))
+  @Patch(':id')
+  public async updateTask(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const body = req.body;
+    const user = req.user;
+    return this.taskService.updateTask(id, body, user.userId);
   }
 
 }
