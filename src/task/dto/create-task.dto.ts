@@ -14,16 +14,11 @@ export class CreateTaskDto {
     @IsString()
     readonly description: string;
 
-    @IsDate()
+
     readonly createDate: Date;
 
-    @IsDate()
     readonly finishDate: Date;
 
     @IsBoolean()
     readonly isDone: boolean;
-
-    @IsNumber()
-    @IsNotEmpty()
-    readonly user: number;
 } 

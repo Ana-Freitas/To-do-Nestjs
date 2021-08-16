@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, UseGuards, ValidationPipe, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
@@ -23,8 +23,8 @@ export class TaskController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  public async postTask(@Body(ValidationPipe) task: CreateTaskDto){
-    return this.taskService.create(task);
+  public async postTask(@Request() user, @Body(ValidationPipe) task: CreateTaskDto){
+    return this.taskService.create(task, user.user);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -34,9 +34,15 @@ export class TaskController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get()
+  @Get('all')
   public async getAllTask() {
     return this.taskService.findAll();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  public async getTaskByUser(@Request() req) {
+    return this.taskService.findByUser(req.user.userId);
   }
 
 }

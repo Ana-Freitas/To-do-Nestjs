@@ -12,7 +12,7 @@ export class TaskService {
         return this.taskModel.findById(id);
     }
 
-    public async create(task: CreateTaskDto): Promise<TaskDocument>{
+    public async create(task: CreateTaskDto, user: any): Promise<TaskDocument>{
         if(await this.findOne(task._id)){
             throw new ConflictException({
                 statusCode: 409,
@@ -20,6 +20,7 @@ export class TaskService {
             });
         }
         const taskCreated = new this.taskModel(task)
+        taskCreated.user = user.userId;
         return taskCreated.save();;
     }
 
@@ -29,5 +30,9 @@ export class TaskService {
 
     public async findAll() {
         return this.taskModel.find().exec();
+    }
+
+    public async findByUser(user: number) {
+        return this.taskModel.find({ user: user });
     }
 }
