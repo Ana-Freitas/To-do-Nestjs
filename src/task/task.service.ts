@@ -22,7 +22,7 @@ export class TaskService {
         }
         const taskCreated = new this.taskModel(task)
         taskCreated.user = user.userId;
-        return taskCreated.save();;
+        return taskCreated.save();
     }
 
     public async delete(id: number, user: number) {
@@ -39,7 +39,7 @@ export class TaskService {
     }
 
     public async findAll() {
-        return this.taskModel.find().exec();
+        return this.taskModel.find();
     }
 
     public async findByUser(user: number) {
